@@ -630,33 +630,28 @@
             <div class="contact-form-wrapper pt-3">
               <form id="contact-form" class="contact-form p-md-4 px-lg-5">
                 <h4 class="text-center mb-4">Leave me a message</h4>
-
                 <div class="row g-3">
                   <div class="col-md-6">
                     <label class="sr-only" for="cname">Name</label>
-                    <input type="text" class="form-control" id="cname" name="name" placeholder="Name" minlength="4" required="">
+                    <input type="text" class="form-control" id="cname" name="name" placeholder="Name" minlength="4" required>
                   </div>
                   <div class="col-md-6">
                     <label class="sr-only" for="cemail">Email</label>
-                    <input type="email" class="form-control" id="cemail" name="email" placeholder="Email" required="">
+                    <input type="email" class="form-control" id="cemail" name="email" placeholder="Email" required>
                   </div>
                   <div class="col-md-12">
-                    <label class="sr-only" for="cemail">Subject</label>
-                    <input type="text" class="form-control" id="csubject" name="subject" minlength="10" placeholder="Subject" required="">
+                    <label class="sr-only" for="csubject">Subject</label>
+                    <input type="text" class="form-control" id="csubject" name="subject" minlength="10" placeholder="Subject" required>
                   </div>
-
                   <div class="col-12">
                     <label class="sr-only" for="cmessage">Your message</label>
-                    <textarea class="form-control" id="cmessage" name="message" placeholder="Enter your message" rows="10" required=""></textarea>
+                    <textarea class="form-control" id="cmessage" name="message" placeholder="Enter your message" rows="10" required></textarea>
                   </div>
                   <div class="col-12">
                     <div class="notice"></div>
-                    <button type="submit" class="btn w-100 btn-secondary py-2">
-                      Submit
-                    </button>
+                    <button type="submit" class="btn w-100 btn-secondary py-2">Submit</button>
                   </div>
                 </div>
-                <!--//form-row-->
               </form>
             </div>
             <!--//contact-form-wrapper-->
@@ -674,31 +669,44 @@
     </footer>
 
     <!-- Javascript -->
-    <script data-cfasync="false" src="cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="assets/plugins/popper.min.js"></script>
-    <script src="assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <!-- 1. jQuery FIRST (required by other scripts) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-    <!-- Page Specific JS -->
-    <script src="assets/plugins/tiny-slider/min/tiny-slider.js"></script>
-    <script src="assets/js/tinyslider-custom.js"></script>
+<!-- 2. jQuery Validate (requires jQuery) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
 
-    <!-- Dark/Light Mode Toggle  -->
+<!-- 3. Bootstrap and other plugins -->
+<script src="assets/plugins/popper.min.js"></script>
+<script src="assets/plugins/bootstrap/js/bootstrap.min.js"></script>
 
-    <script src="assets/plugins/js-cookie.min.js"></script>
-    <script src="assets/js/mode-toggle.js"></script>
+<!-- 4. Page Specific JS -->
+<script src="assets/plugins/tiny-slider/min/tiny-slider.js"></script>
+<script src="assets/js/tinyslider-custom.js"></script>
 
-    <!-- Style Switcher (REMOVE ON YOUR PRODUCTION SITE) -->
-    <script src="assets/js/demo/style-switcher.js"></script>
-  
-<!-- Add EmailJS SDK before closing </body> tag -->
+<!-- 5. Dark/Light Mode Toggle -->
+<script src="assets/plugins/js-cookie.min.js"></script>
+<script src="assets/js/mode-toggle.js"></script>
+
+<!-- 6. Style Switcher -->
+<script src="assets/js/demo/style-switcher.js"></script>
+
+<!-- 7. EmailJS SDK -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
+<!-- 8. Contact Form Script (MUST be LAST) -->
 <script type="text/javascript">
   // Initialize EmailJS
   (function() {
-    emailjs.init("ODQMslHgqNy9MPs63"); // Replace with your actual Public Key
+    emailjs.init("ODQMslHgqNy9MPs63"); // Your Public Key
   })();
 
   $(document).ready(function () {
+    // Prevent default form submission on the form itself
+    $("#contact-form").on('submit', function(e) {
+      e.preventDefault();
+      return false;
+    });
+
     $("#contact-form").validate({
       rules: {
         name: { required: true, minlength: 4 },
@@ -723,30 +731,41 @@
           required: "Please enter your message",
         },
       },
-      submitHandler: function (form) {
+      submitHandler: function (form, event) {
+        // Prevent default form submission
+        if (event) {
+          event.preventDefault();
+        }
+        
         // Show sending message
-        $(".notice").html("<span style='color: #0066cc;'>Sending message...</span>");
+        $(".notice").html("<span style='color: #0066cc; font-weight: 500;'>Sending message...</span>");
+        
+        // Disable submit button to prevent double submission
+        $("button[type='submit']").prop('disabled', true).text('Sending...');
         
         // Prepare template parameters
         const templateParams = {
-          from_name: $("#cname").val(),
-          from_email: $("#cemail").val(),
-          subject: $("#csubject").val(),
-          message: $("#cmessage").val()
+          from_name: $("#cname").val().trim(),
+          from_email: $("#cemail").val().trim(),
+          subject: $("#csubject").val().trim(),
+          message: $("#cmessage").val().trim()
         };
+        
+        console.log('Sending email with params:', templateParams);
         
         // Send email using EmailJS
         emailjs.send(
-          'service_pwtakvm',    // Replace with your Service ID
-          'template_j7m9aba',   // Replace with your Template ID
+          'service_pwtakvm',    // Your Service ID
+          'template_cssq6bt',   // Your Template ID
           templateParams
         ).then(
           function(response) {
             console.log('SUCCESS!', response.status, response.text);
             $(".notice").html(
-              "<span style='color: green;'>Thank you for reaching out, your message has been sent successfully.</span>"
+              "<span style='color: #28a745; font-weight: 500;'>✓ Thank you for reaching out! Your message has been sent successfully.</span>"
             );
             $(form)[0].reset();
+            $("button[type='submit']").prop('disabled', false).text('Submit');
             
             setTimeout(function () {
               $(".notice").html("");
@@ -755,14 +774,17 @@
           function(error) {
             console.log('FAILED...', error);
             $(".notice").html(
-              "<span style='color: red;'>An error occurred. Please try again later.</span>"
+              "<span style='color: #dc3545; font-weight: 500;'>✗ An error occurred: " + (error.text || 'Please try again') + "</span>"
             );
+            $("button[type='submit']").prop('disabled', false).text('Submit');
             
             setTimeout(function () {
               $(".notice").html("");
             }, 6000);
           }
         );
+        
+        return false;
       },
     });
   });
@@ -771,9 +793,16 @@
 <style>
   .notice {
     margin-bottom: 15px;
-    padding: 10px;
-    border-radius: 4px;
+    padding: 12px;
+    border-radius: 5px;
     text-align: center;
+    min-height: 20px;
+  }
+  
+  .notice span {
+    display: block;
   }
 </style>
-</body></html>
+
+</body>
+</html>
