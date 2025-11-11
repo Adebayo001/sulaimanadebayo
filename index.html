@@ -628,7 +628,7 @@
             <!--//intro-holder-->
 
             <div class="contact-form-wrapper pt-3">
-              <form id="contact-form" method="post" action="form.php" class="contact-form p-md-4 px-lg-5">
+              <form id="contact-form" class="contact-form p-md-4 px-lg-5">
                 <h4 class="text-center mb-4">Leave me a message</h4>
 
                 <div class="row g-3">
@@ -669,7 +669,7 @@
     <!--//row-->
 
     <footer class="footer text-center py-5">
-      <small class="copyright">� 2024 <a href="hezekiahadeyemi.dev">Hezekiah Adeyemi</a>. All
+      <small class="copyright">� 2025 <a href="#">Sulaiman ADEBAYO</a>. All
         rights reserved.</small>
     </footer>
 
@@ -688,82 +688,92 @@
 
     <!-- Style Switcher (REMOVE ON YOUR PRODUCTION SITE) -->
     <script src="assets/js/demo/style-switcher.js"></script>
-    <script src="../ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="../cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
-
-    <script type="text/javascript">
-      $(document).ready(function () {
-        $("#contact-form").validate({
-          rules: {
-            name: {
-              required: true,
-              minlength: 4,
-            },
-            email: {
-              required: true,
-              email: true,
-            },
-            subject: {
-              required: true,
-              minlength: 10,
-            },
-            message: {
-              required: true,
-            },
-          },
-          messages: {
-            name: {
-              required: "Please enter your name",
-              minlength: "Your name must be at least 4 characters long",
-            },
-            email: {
-              required: "Please enter your email",
-              email: "Please enter a valid email address",
-            },
-            subject: {
-              required: "Please enter a subject",
-              minlength: "The subject must be at least 10 characters long",
-            },
-            message: {
-              required: "Please enter your message",
-            },
-          },
-          submitHandler: function (form) {
-            $.ajax({
-              type: "POST",
-              url: "form.php", // Replace with your actual backend endpoint
-              data: $(form).serialize(),
-              dataType: "json", // Assuming the backend returns JSON
-              success: function (response) {
-                // Handle the success response from the server
-                if (response.status === "success") {
-                  // Display success message
-                  $(".notice").html(
-                    "<span class='green'>Thank you for reaching out, your message has been sent successfully.</span>"
-                  );
-                  $(form)[0].reset();
-                } else {
-                  // Display error message from the backend
-                  $(".notice").html(
-                    "<span class='red'>" + response.message + "</span>"
-                  );
-                }
-                // Hide the message after 3 seconds
-                setTimeout(function () {
-                  $(".notice").html("");
-                }, 6000);
-              },
-              error: function () {
-                // Handle the error response from the server
-                $(".notice").html(
-                  "<span class='red'>An error occurred. Please try again.</span>"
-                );
-              },
-            });
-          },
-        });
-      });
-    </script>
   
+<!-- Add EmailJS SDK before closing </body> tag -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
+<script type="text/javascript">
+  // Initialize EmailJS
+  (function() {
+    emailjs.init("ODQMslHgqNy9MPs63"); // Replace with your actual Public Key
+  })();
+
+  $(document).ready(function () {
+    $("#contact-form").validate({
+      rules: {
+        name: { required: true, minlength: 4 },
+        email: { required: true, email: true },
+        subject: { required: true, minlength: 10 },
+        message: { required: true },
+      },
+      messages: {
+        name: {
+          required: "Please enter your name",
+          minlength: "Your name must be at least 4 characters long",
+        },
+        email: {
+          required: "Please enter your email",
+          email: "Please enter a valid email address",
+        },
+        subject: {
+          required: "Please enter a subject",
+          minlength: "The subject must be at least 10 characters long",
+        },
+        message: {
+          required: "Please enter your message",
+        },
+      },
+      submitHandler: function (form) {
+        // Show sending message
+        $(".notice").html("<span style='color: #0066cc;'>Sending message...</span>");
+        
+        // Prepare template parameters
+        const templateParams = {
+          from_name: $("#cname").val(),
+          from_email: $("#cemail").val(),
+          subject: $("#csubject").val(),
+          message: $("#cmessage").val()
+        };
+        
+        // Send email using EmailJS
+        emailjs.send(
+          'service_pwtakvm',    // Replace with your Service ID
+          'template_j7m9aba',   // Replace with your Template ID
+          templateParams
+        ).then(
+          function(response) {
+            console.log('SUCCESS!', response.status, response.text);
+            $(".notice").html(
+              "<span style='color: green;'>Thank you for reaching out, your message has been sent successfully.</span>"
+            );
+            $(form)[0].reset();
+            
+            setTimeout(function () {
+              $(".notice").html("");
+            }, 6000);
+          },
+          function(error) {
+            console.log('FAILED...', error);
+            $(".notice").html(
+              "<span style='color: red;'>An error occurred. Please try again later.</span>"
+            );
+            
+            setTimeout(function () {
+              $(".notice").html("");
+            }, 6000);
+          }
+        );
+      },
+    });
+  });
+</script>
+
+<style>
+  .notice {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+  }
+</style>
 </body></html>
